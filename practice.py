@@ -2,17 +2,24 @@ import streamlit as st
 import random
 
 # --- ページ設定（一番最初に） ---
-st.set_page_config(page_title="平方完成の練習アプリ", layout="wide")
+st.set_page_config(page_title="平方完成しろ", layout="wide")
 
 # ===============================================
-# ★【対策】数式を確実に大きくするためのCSS設定
+# ★【微調整】数式を大きくしつつ、見切れを防ぐCSS
 # ===============================================
 st.markdown(
     """
     <style>
-    /* 数式ブロック（.katex-display）とその中のすべての要素を強制拡大 */
-    .katex-display, .katex-display * {
-        font-size: 2.8rem !important;
+    /* 数式全体のベースサイズを拡大（比率を壊さないように * は外す） */
+    .katex {
+        font-size: 2.2em !important;
+    }
+    /* 指数などが上下にはみ出しても見切れないように余白を作る */
+    .katex-display {
+        padding-top: 1.0em !important;
+        padding-bottom: 1.0em !important;
+        line-height: 1.5 !important;
+        overflow: visible !important;
     }
     </style>
     """,
@@ -23,18 +30,16 @@ st.markdown(
 # --- 状態の初期化 ---
 if 'a' not in st.session_state:
     st.session_state.a = random.choice([i for i in range(-9, 10) if i != 0])
-# 0:問題のみ、1:途中式表示、2:結果も表示 の3つの状態（ステップ）で管理します
 if 'step' not in st.session_state:
     st.session_state.step = 0
 
-# --- コールバック関数（ボタンが押されたときの処理） ---
+# --- コールバック関数 ---
 def handle_button_click():
     if st.session_state.step == 0:
-        st.session_state.step = 1  # 途中式を表示する状態へ
+        st.session_state.step = 1
     elif st.session_state.step == 1:
-        st.session_state.step = 2  # 最終結果も表示する状態へ
+        st.session_state.step = 2
     elif st.session_state.step == 2:
-        # 次の問題へ進み、状態を最初に戻す
         st.session_state.a = random.choice([i for i in range(-9, 10) if i != 0])
         st.session_state.step = 0
 
@@ -50,7 +55,6 @@ def get_question_latex(a):
         return f"y = x^2 - {-a}x"
 
 def get_answer_latex(a, step):
-    """現在のステップに合わせて数式を出し分ける"""
     # --- 前半 ---
     if a % 2 == 0:
         p = abs(a) // 2
@@ -78,7 +82,6 @@ def get_answer_latex(a, step):
     else:
         term2_final = f"\\frac{{{a ** 2}}}{{4}}"
 
-    # 【追加】1回目（stepが1）のときは途中式のみ、2回目のときは等号を揃えて結果まで出す
     if step == 1:
         return f"y = {term1} - {term2_step}"
     else:
@@ -98,8 +101,7 @@ st.latex(get_question_latex(st.session_state.a))
 
 st.markdown("---")
 
-# 2. ボタンの表示（固定位置）
-# 現在の状態に応じて、ボタンのラベルを自動で切り替えます
+# 2. ボタンの表示
 if st.session_state.step == 0:
     button_label = "答"
 elif st.session_state.step == 1:
@@ -109,7 +111,7 @@ else:
 
 st.button(button_label, on_click=handle_button_click)
 
-# 3. 解答の表示（stepが1以上のときに動き出す）
+# 3. 解答の表示
 if st.session_state.step >= 1:
     st.markdown("### 解答")
     st.latex(get_answer_latex(st.session_state.a, st.session_state.step))
