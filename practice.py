@@ -1,83 +1,47 @@
-import streamlit as st
-import random
 
-# --- ページ設定 ---
-st.set_page_config(page_title="平方完成の練習アプリ", layout="wide")
+平方完成の練習アプリ
+問題
+y
+=
+x
+2
++
+8
+x
+y=x 
+2
+ +8x
 
-# --- 状態の初期化 ---
-if 'a' not in st.session_state:
-    st.session_state.a = random.choice([i for i in range(-9, 10) if i != 0])
-if 'show_answer' not in st.session_state:
-    st.session_state.show_answer = False
-
-# --- コールバック関数 ---
-def handle_button_click():
-    if st.session_state.show_answer:
-        st.session_state.a = random.choice([i for i in range(-9, 10) if i != 0])
-        st.session_state.show_answer = False
-    else:
-        st.session_state.show_answer = True
-
-# --- 数式の整形関数 ---
-def get_question_latex(a):
-    if a == 1:
-        return "y = x^2 + x"
-    elif a == -1:
-        return "y = x^2 - x"
-    elif a > 0:
-        return f"y = x^2 + {a}x"
-    else:
-        return f"y = x^2 - {-a}x"
-
-def get_answer_latex(a):
-    # --- 前半 ---
-    if a % 2 == 0:
-        p = abs(a) // 2
-        sign = "+" if a > 0 else "-"
-        term1 = f"(x {sign} {p})^2"
-    else:
-        p = abs(a)
-        sign = "+" if a > 0 else "-"
-        term1 = f"\\left(x {sign} \\frac{{{p}}}{{2}}\\right)^2"
-
-    # --- 後半1 (途中式) ---
-    if a % 2 != 0:
-        if a > 0:
-            term2_step = f"\\left(\\frac{{{a}}}{{2}}\\right)^2"
-        else:
-            term2_step = f"\\left(-\\frac{{{-a}}}{{2}}\\right)^2"
-    elif a > 0:
-        term2_step = f"{a // 2}^2"
-    else:
-        term2_step = f"({a // 2})^2"
-
-    # --- 後半2 (最終結果) ---
-    if a % 2 == 0:
-        term2_final = f"{(a // 2) ** 2}"
-    else:
-        term2_final = f"\\frac{{{a ** 2}}}{{4}}"
-
-    # --- LaTeXのaligned環境 ---
-    latex_str = (
-        "\\begin{aligned}\n"
-        f"y &= {term1} - {term2_step} \\\\\n"
-        f"  &= {term1} - {term2_final}\n"
-        "\\end{aligned}"
-    )
-    return latex_str
-
-# --- UIの描画 ---
-# 1. 問題の表示
-st.markdown("### 平方完成せよ。")
-st.latex(get_question_latex(st.session_state.a))
-
-st.markdown("---")
-
-# 2. ボタンの表示（★解答エリアより上に固定）
-button_label = "次" if st.session_state.show_answer else "答"
-st.button(button_label, on_click=handle_button_click)
-
-# 3. 解答の表示（★ボタンの下に展開される）
-if st.session_state.show_answer:
-    st.markdown("### 解答")
-    st.latex(get_answer_latex(st.session_state.a))
+解答
+y
+=
+(
+x
++
+4
+)
+2
+−
+4
+2
+=
+(
+x
++
+4
+)
+2
+−
+16
+y
+​
+  
+=(x+4) 
+2
+ −4 
+2
+ 
+=(x+4) 
+2
+ −16
+​
